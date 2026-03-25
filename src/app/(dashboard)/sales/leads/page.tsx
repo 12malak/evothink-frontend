@@ -417,7 +417,7 @@ function BookTrialModal({lead,lang,isRTL,t,onClose,onConfirm}:{lead:Lead;lang:st
                 {[
                   {lbl:t("Lead","العميل"),    val:lang==="ar"?lead.nameAr:lead.name},
                   {lbl:t("Subject","المادة"), val:subject},
-                 {lbl:t("Teacher","المعلم"), val:TEACHERS_OPT.find(tc => tc.id === teacher)?.[lang === "ar" ? "ar" : "en"] || "—"},
+                  {lbl:t("Teacher","المعلم"), val:TEACHERS_OPT.find(tc=>tc.id===teacher)?.[lang==="ar"?"ar":"en"]||"—"},
                   {lbl:t("Date","التاريخ"),   val:date||"—"},
                   {lbl:t("Time","الوقت"),     val:time||"—"},
                 ].map(r=>(
@@ -557,6 +557,239 @@ function PaymentLinkModal({lead,lang,isRTL,t,onClose,onConfirm}:{lead:Lead;lang:
 }
 
 // ═══════════════════════════════════════════════════
+// ADD LEAD MODAL — wide 2-column
+// ═══════════════════════════════════════════════════
+const AGENTS_OPT=[
+  {id:"NK",en:"Nour Al-Khalil",  ar:"نور الخليل",  avatar:"NK"},
+  {id:"FM",en:"Fares Mansoor",   ar:"فارس منصور",  avatar:"FM"},
+  {id:"DR",en:"Dana Rashid",     ar:"دانا راشد",   avatar:"DR"},
+  {id:"SZ",en:"Sami Al-Zoubi",   ar:"سامي الزعبي", avatar:"SZ"},
+];
+const SOURCES_OPT=[
+  {en:"Instagram",   ar:"إنستغرام"},
+  {en:"Facebook",    ar:"فيسبوك"},
+  {en:"Google Ads",  ar:"إعلانات قوقل"},
+  {en:"Referral",    ar:"إحالة"},
+  {en:"Website",     ar:"الموقع"},
+  {en:"WhatsApp",    ar:"واتساب"},
+];
+const INTERESTS_OPT=[
+  {en:"English Speaking",  ar:"محادثة إنجليزية"},
+  {en:"Grammar & Writing", ar:"قواعد وكتابة"},
+  {en:"IELTS Preparation", ar:"تحضير IELTS"},
+  {en:"Business English",  ar:"إنجليزية الأعمال"},
+  {en:"Kids English",      ar:"إنجليزية الأطفال"},
+  {en:"Vocabulary Boost",  ar:"تعزيز المفردات"},
+];
+
+function AddLeadModal({lang,isRTL,t,onClose,onSave}:{
+  lang:string; isRTL:boolean;
+  t:(a:string,b:string)=>string;
+  onClose:()=>void;
+  onSave:(l:Lead)=>void;
+}){
+  const [form,setForm]=useState({
+    name:"",nameAr:"",phone:"",email:"",
+    city:"",cityAr:"",source:"Instagram",agent:"NK",
+    interest:"English Speaking",notes:"",
+  });
+  const [errors,setErrors]=useState<Record<string,string>>({});
+  const [loading,setLoading]=useState(false);
+
+  const inp="w-full px-3 py-2.5 text-sm border border-[#E2E8F0] rounded-xl bg-white text-[#1e293b] placeholder:text-[#C4CAD4] focus:outline-none focus:border-[#107789] focus:ring-1 focus:ring-[#107789]/20 transition-all";
+  const lbl="block text-xs font-semibold text-[#64748b] mb-1.5";
+
+  const validate=()=>{
+    const e:Record<string,string>={};
+    if(!form.name.trim())  e.name  =t("Full name is required.","الاسم الكامل مطلوب.");
+    if(!form.phone.trim()) e.phone =t("Phone number is required.","رقم الهاتف مطلوب.");
+    if(form.email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email=t("Invalid email.","بريد غير صحيح.");
+    if(!form.agent)        e.agent =t("Assign an agent.","عيّن وكيلاً.");
+    setErrors(e); return Object.keys(e).length===0;
+  };
+
+  const handleSave=async()=>{
+    if(!validate()) return;
+    setLoading(true); await new Promise(r=>setTimeout(r,900)); setLoading(false);
+    const ag=AGENTS_OPT.find(a=>a.id===form.agent)!;
+    const newLead:Lead={
+      id:`L${String(Date.now()).slice(-3)}`,
+      name:form.name.trim(), nameAr:form.nameAr.trim()||form.name.trim(),
+      phone:form.phone.trim(), email:form.email.trim(),
+      city:form.city.trim(), cityAr:form.cityAr.trim()||form.city.trim(),
+      source:form.source, sourceAr:SOURCES_OPT.find(s=>s.en===form.source)?.ar||form.source,
+      status:"new",
+      agent:ag.en, agentAr:ag.ar, agentAvatar:ag.id,
+      notes:form.notes, notesAr:form.notes,
+      createdAt:new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}),
+      interest:form.interest,
+      interestAr:INTERESTS_OPT.find(i=>i.en===form.interest)?.ar||form.interest,
+      activity:[{
+        en:`Lead added — ${form.source}`, ar:`أُضيف من ${SOURCES_OPT.find(s=>s.en===form.source)?.ar||form.source}`,
+        time:"Just now", timeAr:"الآن", icon:"👤",
+      }],
+    };
+    onSave(newLead);
+  };
+
+  return(
+    <Backdrop onClose={onClose}>
+      <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-3xl overflow-hidden"
+        dir={isRTL?"rtl":"ltr"} style={{maxHeight:"92vh",overflowY:"auto"}}>
+        <div className="h-1.5" style={{background:"linear-gradient(90deg,#107789,#E8763A)"}}/>
+
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#F1F5F9]">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#EBF5F7] flex items-center justify-center text-xl">👤</div>
+            <div>
+              <h2 className="text-base font-black text-[#1e293b]">{t("Add New Lead","إضافة عميل جديد")}</h2>
+              <p className="text-xs text-[#94a3b8] mt-0.5">{t("Fill in the details to add to the pipeline","أدخل التفاصيل لإضافته لخط العملاء")}</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="w-9 h-9 flex items-center justify-center rounded-xl bg-[#F5F7F9] text-[#94a3b8] hover:text-[#1e293b] hover:bg-[#E2E8F0] transition-all">{IC.close}</button>
+        </div>
+
+        {/* 2-column body */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-0 divide-y md:divide-y-0 md:divide-x divide-[#F1F5F9]">
+
+          {/* LEFT: Personal info */}
+          <div className="p-6 space-y-4">
+            <p className="text-xs font-black text-[#94a3b8] uppercase tracking-widest">{t("Personal Information","المعلومات الشخصية")}</p>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={lbl}>{t("Full Name *","الاسم الكامل *")}</label>
+                <input value={form.name} onChange={e=>setForm(p=>({...p,name:e.target.value}))}
+                  placeholder={t("Ahmad Hassan","أحمد حسن")} className={inp}/>
+                {errors.name&&<p className="text-[11px] text-[#ef4444] mt-1">{errors.name}</p>}
+              </div>
+              <div>
+                <label className={lbl}>{t("Name in Arabic","الاسم بالعربي")}</label>
+                <input value={form.nameAr} onChange={e=>setForm(p=>({...p,nameAr:e.target.value}))}
+                  placeholder="أحمد حسن" className={inp} dir="rtl"/>
+              </div>
+            </div>
+
+            <div>
+              <label className={lbl}>{t("Phone Number *","رقم الهاتف *")}</label>
+              <input value={form.phone} onChange={e=>setForm(p=>({...p,phone:e.target.value}))}
+                placeholder="+962 79 000 0000" className={inp} type="tel"/>
+              {errors.phone&&<p className="text-[11px] text-[#ef4444] mt-1">{errors.phone}</p>}
+            </div>
+
+            <div>
+              <label className={lbl}>{t("Email (optional)","البريد الإلكتروني (اختياري)")}</label>
+              <input value={form.email} onChange={e=>setForm(p=>({...p,email:e.target.value}))}
+                placeholder="email@example.com" className={inp} type="email"/>
+              {errors.email&&<p className="text-[11px] text-[#ef4444] mt-1">{errors.email}</p>}
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={lbl}>{t("City","المدينة")}</label>
+                <input value={form.city} onChange={e=>setForm(p=>({...p,city:e.target.value}))}
+                  placeholder="Amman" className={inp}/>
+              </div>
+              <div>
+                <label className={lbl}>{t("City (Arabic)","المدينة (عربي)")}</label>
+                <input value={form.cityAr} onChange={e=>setForm(p=>({...p,cityAr:e.target.value}))}
+                  placeholder="عمّان" className={inp} dir="rtl"/>
+              </div>
+            </div>
+
+            <div>
+              <label className={lbl}>{t("Notes","ملاحظات")}</label>
+              <textarea rows={2} value={form.notes} onChange={e=>setForm(p=>({...p,notes:e.target.value}))}
+                placeholder={t("Any notes about this lead…","أي ملاحظات عن هذا العميل…")}
+                className={`${inp} resize-none`}/>
+            </div>
+          </div>
+
+          {/* RIGHT: Classification */}
+          <div className="p-6 space-y-5">
+            <p className="text-xs font-black text-[#94a3b8] uppercase tracking-widest">{t("Classification","التصنيف")}</p>
+
+            {/* Source */}
+            <div>
+              <label className={lbl}>{t("Lead Source","مصدر العميل")}</label>
+              <div className="flex flex-wrap gap-2">
+                {SOURCES_OPT.map(s=>(
+                  <button key={s.en} type="button" onClick={()=>setForm(p=>({...p,source:s.en}))}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all active:scale-95
+                                ${form.source===s.en?"border-[#107789] bg-[#EBF5F7] text-[#107789]":"border-[#E2E8F0] text-[#64748b] hover:border-[#107789]/30 hover:bg-[#F8FAFC]"}`}>
+                    {lang==="ar"?s.ar:s.en}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Interest */}
+            <div>
+              <label className={lbl}>{t("Area of Interest","مجال الاهتمام")}</label>
+              <div className="flex flex-wrap gap-2">
+                {INTERESTS_OPT.map(i=>(
+                  <button key={i.en} type="button" onClick={()=>setForm(p=>({...p,interest:i.en}))}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all active:scale-95
+                                ${form.interest===i.en?"border-[#107789] bg-[#EBF5F7] text-[#107789]":"border-[#E2E8F0] text-[#64748b] hover:border-[#107789]/30 hover:bg-[#F8FAFC]"}`}>
+                    {lang==="ar"?i.ar:i.en}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Assign agent */}
+            <div>
+              <label className={lbl}>{t("Assign Agent *","تعيين الوكيل *")}</label>
+              <div className="space-y-2">
+                {AGENTS_OPT.map(ag=>(
+                  <button key={ag.id} type="button" onClick={()=>{setForm(p=>({...p,agent:ag.id}));setErrors(p=>({...p,agent:""}));}}
+                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl border text-start transition-all active:scale-[.98]
+                                ${form.agent===ag.id?"border-[#107789]/60 bg-[#EBF5F7]":"border-[#E2E8F0] hover:border-[#107789]/30 hover:bg-[#F8FAFC]"}`}>
+                    <Av i={ag.id} size="sm"/>
+                    <span className={`text-sm font-semibold ${form.agent===ag.id?"text-[#107789]":"text-[#1e293b]"}`}>
+                      {lang==="ar"?ag.ar:ag.en}
+                    </span>
+                    {form.agent===ag.id&&(
+                      <span className="ms-auto w-5 h-5 rounded-full bg-[#107789] flex items-center justify-center text-white flex-shrink-0">
+                        {IC.ok}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+              {errors.agent&&<p className="text-[11px] text-[#ef4444] mt-1">{errors.agent}</p>}
+            </div>
+
+            {/* Status preview */}
+            <div className="rounded-xl bg-[#eff6ff] border border-[#bfdbfe] p-3 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#3b82f6] flex-shrink-0"/>
+              <p className="text-xs text-[#2563eb] font-semibold">{t("Status will be set to: New","سيتم تعيين الحالة: جديد")}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between px-6 py-4 border-t border-[#F1F5F9] bg-[#FAFBFC]">
+          <button onClick={onClose}
+            className="px-5 py-2.5 rounded-xl text-sm font-semibold border border-[#E2E8F0] text-[#64748b] hover:bg-[#F5F7F9] active:scale-95 transition-all">
+            {t("Cancel","إلغاء")}
+          </button>
+          <button onClick={handleSave} disabled={loading}
+            className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white hover:opacity-90 active:scale-[.98] transition-all"
+            style={{backgroundColor:loading?"#5FA8B3":"#107789"}}>
+            {loading
+              ? <><svg className="animate-spin" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="white" strokeWidth="2" strokeOpacity="0.3"/><path d="M7 1.5a5.5 5.5 0 015.5 5.5" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg>{t("Adding…","جارٍ الإضافة…")}</>
+              : <>{IC.ok}{t("Add Lead","إضافة العميل")}</>
+            }
+          </button>
+        </div>
+      </div>
+    </Backdrop>
+  );
+}
+
+// ═══════════════════════════════════════════════════
 // PAGE
 // ═══════════════════════════════════════════════════
 export default function LeadsPage(){
@@ -565,6 +798,7 @@ export default function LeadsPage(){
   const [leads,     setLeads]     = useState<Lead[]>(LEADS);
   const [filter,    setFilter]    = useState<FilterTab>("all");
   const [search,    setSearch]    = useState("");
+  const [showAdd,   setShowAdd]   = useState(false);
   const [viewLead,  setViewLead]  = useState<Lead|null>(null);
   const [trialLead, setTrialLead] = useState<Lead|null>(null);
   const [payLead,   setPayLead]   = useState<Lead|null>(null);
@@ -610,7 +844,7 @@ export default function LeadsPage(){
             <h1 className="text-xl sm:text-2xl font-black text-[#1e293b] tracking-tight">{t("Lead Management","إدارة العملاء المحتملين")}</h1>
             <p className="mt-1 text-xs sm:text-sm text-[#94a3b8]">{t("Track, follow up, and convert your leads","تابع عملاءك المحتملين وحوّلهم")}</p>
           </div>
-          <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white hover:opacity-90 active:scale-95 transition-all"
+          <button onClick={()=>setShowAdd(true)} className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white hover:opacity-90 active:scale-95 transition-all"
             style={{backgroundColor:"#107789",animation:"cardIn .4s .05s both"}}>
             + {t("Add Lead","إضافة عميل")}
           </button>
@@ -763,6 +997,8 @@ export default function LeadsPage(){
 
       </main>
 
+      {showAdd&&<AddLeadModal lang={lang} isRTL={isRTL} t={t} onClose={()=>setShowAdd(false)}
+        onSave={l=>{setLeads(p=>[l,...p]);setShowAdd(false);fire(t(`"${l.name}" added successfully!`,`تم إضافة "${l.nameAr}" بنجاح!`));}}/>}
       {viewLead&&<LeadModal lead={viewLead} lang={lang} isRTL={isRTL} t={t} onClose={()=>setViewLead(null)}
         onSave={u=>{setLeads(p=>p.map(l=>l.id===u.id?u:l));setViewLead(null);fire(t("Lead updated!","تم تحديث العميل!"));}}
         onBookTrial={l=>setTrialLead(l)} onSendPayment={l=>setPayLead(l)}/>}
