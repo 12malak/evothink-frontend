@@ -110,33 +110,37 @@ function OtpInput({ value, onChange, error, isRTL }: {
     <div className="flex flex-col gap-1.5">
       <div className="flex gap-2 justify-center" dir="ltr">
         {digits.map((d, i) => (
-          <input
-            key={i}
-            type="text"
-            inputMode="numeric"
-            maxLength={1}
-            value={d.trim()}
-            readOnly
-            onKeyDown={e => handleKey(i, e)}
-            onFocus={e => e.currentTarget.select()}
-            className="otp-cell text-center text-lg font-bold"
-            style={{
-              width:46, height:52, borderRadius:10,
-              border:`1.5px solid ${error ? "#FCA5A5" : d.trim() ? "#107789" : "#E5E7EB"}`,
-              backgroundColor: d.trim() ? "#EBF5F7" : "#FFFFFF",
-              color:"#0B2C33", outline:"none",
-              transition:"all .15s", cursor:"text",
-            }}
-            onFocus={e => {
-              e.currentTarget.style.borderColor = "#107789";
-              e.currentTarget.style.boxShadow = "0 0 0 3px rgba(16,119,137,0.12)";
-            }}
-            onBlur={e => {
-              e.currentTarget.style.borderColor = d.trim() ? "#107789" : "#E5E7EB";
-              e.currentTarget.style.boxShadow = "none";
-            }}
-          />
-        ))}
+  <input
+    key={i}
+    type="text"
+    inputMode="numeric"
+    maxLength={1}
+    value={d.trim()}
+    readOnly
+    onKeyDown={e => handleKey(i, e)}
+    onFocus={e => {
+      e.currentTarget.select();
+      e.currentTarget.style.borderColor = "#107789";
+      e.currentTarget.style.boxShadow = "0 0 0 3px rgba(16,119,137,0.12)";
+    }}
+    className="otp-cell text-center text-lg font-bold"
+    style={{
+      width: 46,
+      height: 52,
+      borderRadius: 10,
+      border: `1.5px solid ${error ? "#FCA5A5" : d.trim() ? "#107789" : "#E5E7EB"}`,
+      backgroundColor: d.trim() ? "#EBF5F7" : "#FFFFFF",
+      color: "#0B2C33",
+      outline: "none",
+      transition: "all .15s",
+      cursor: "text",
+    }}
+    onBlur={e => {
+      e.currentTarget.style.borderColor = d.trim() ? "#107789" : "#E5E7EB";
+      e.currentTarget.style.boxShadow = "none";
+    }}
+  />
+))}
       </div>
       {error && (
         <p className="text-[11px] font-medium flex items-center justify-center gap-1"

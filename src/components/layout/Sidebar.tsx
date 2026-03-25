@@ -228,10 +228,10 @@ const navItems: NavItem[] = [
     labelAr: "المبيعات",
     icon: Icons.sales,
     children: [
+        { key: "sales-dashboard", labelEn: "Dashboard", labelAr: "الرئيسية", href: "/sales/dashboard" },
       { key: "sales-leads", labelEn: "Leads", labelAr: "العملاء المحتملون", href: "/sales/leads" },
       { key: "sales-trials", labelEn: "Trials", labelAr: "الحصص التجريبية", href: "/sales/trials" },
-      { key: "sales-evaluation", labelEn: "Evaluation", labelAr: "التقييم", href: "/sales/evaluation" },
-      { key: "sales-conversion", labelEn: "Conversion", labelAr: "التحويل", href: "/sales/conversion" },
+    
     ],
   },
   {
