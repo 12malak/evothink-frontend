@@ -75,7 +75,6 @@ const I = {
   close:    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
   ok:       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
   wallet:   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 3H8l-2 4h12l-2-4z"/><circle cx="16" cy="13" r="1.5" fill="currentColor"/></svg>,
-  withdraw: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="17 11 12 6 7 11"/><line x1="12" y1="6" x2="12" y2="18"/><path d="M4 18h16"/></svg>,
   sessions: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>,
   history:  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>,
   rate:     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
@@ -108,37 +107,106 @@ function TBadge({ type,lang }:{ type:SessionType; lang:string }){
   return <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold whitespace-nowrap" style={{backgroundColor:c.bg,color:c.text}}>{lang==="ar"?c.ar:c.en}</span>;
 }
 
-// ─── Bar Chart (fully responsive via viewBox) ─────────────────
+// ─── Bar Chart — FIXED viewBox + label visibility ─────────────
 function BarChart({ data, lang }:{ data:MonthlyData[]; lang:string }){
   const max    = Math.max(...data.map(d=>d.earned));
-  const cH     = 90;
-  const bW     = 30;
-  const gap    = 12;
+  const cH     = 90;   // chart area height
+  const bW     = 30;   // bar width
+  const gap    = 12;   // gap between bars
+  const topPad = 26;   // ← INCREASED: enough room for the value label above tallest bar
+  const botPad = 38;   // room for month + sessions labels below
   const totalW = data.length*(bW+gap)-gap;
+
+  // viewBox: left=-4 (small gutter), top=-topPad, width=totalW+8, height=cH+topPad+botPad
+  const vb = `-4 -${topPad} ${totalW+8} ${cH+topPad+botPad}`;
+
   return (
     <div className="w-full">
-      <svg viewBox={`-4 -8 ${totalW+12} ${cH+42}`} preserveAspectRatio="xMidYMid meet"
-        style={{width:"100%",height:"auto",display:"block"}}>
+      <svg
+        viewBox={vb}
+        preserveAspectRatio="xMidYMid meet"
+        style={{width:"100%", height:"auto", display:"block"}}
+      >
         {data.map((d,i)=>{
-          const bH = (d.earned/max)*cH;
-          const x  = i*(bW+gap);
-          const y  = cH-bH;
-          const last = i===data.length-1;
+          const bH   = Math.max(4, (d.earned/max)*cH); // min 4px so 0-value still shows
+          const x    = i*(bW+gap);
+          const y    = cH-bH;
+          const isTop = i===data.length-1;           // highlight the last (current) bar
+          const barColor = isTop ? "#107789" : "#b2dce4";
+          const labelY   = y - 8;                    // ← label sits 8px above bar top
+          const labelText = `$${d.earned}`;
+
+          // Measure approx label width to size the pill background
+          const approxW = labelText.length * 6.5 + 8;
+
           return (
             <g key={i}>
-              <rect x={x} y={0} width={bW} height={cH} rx={5} fill="#F8FAFC"/>
-              <rect x={x} y={y} width={bW} height={bH} rx={5}
-                fill={last?"#107789":"#b2dce4"}
-                style={{transition:`height .8s ${i*0.1}s ease,y .8s ${i*0.1}s ease`}}/>
-              {last&&(
-                <text x={x+bW/2} y={y-5} textAnchor="middle" fontSize="10" fontWeight="700" fill="#107789">
+              {/* Bar background track */}
+              <rect x={x} y={0} width={bW} height={cH} rx={6} fill="#F1F5F9"/>
+
+              {/* Bar fill */}
+              <rect
+                x={x} y={y} width={bW} height={bH} rx={6}
+                fill={barColor}
+                style={{transition:`height .8s ${i*0.1}s ease, y .8s ${i*0.1}s ease`}}
+              />
+
+              {/* Value label — only on the tallest/highlighted bar */}
+              {isTop && (
+                <g>
+                  {/* White pill background so label never gets clipped by bar color */}
+                  <rect
+                    x={x + bW/2 - approxW/2}
+                    y={labelY - 11}
+                    width={approxW}
+                    height={14}
+                    rx={7}
+                    fill="#107789"
+                  />
+                  <text
+                    x={x + bW/2}
+                    y={labelY}
+                    textAnchor="middle"
+                    fontSize="10"
+                    fontWeight="800"
+                    fill="white"
+                    fontFamily="system-ui, sans-serif"
+                  >
+                    {labelText}
+                  </text>
+                </g>
+              )}
+
+              {/* Show value above every bar (small, muted) — not just the last */}
+              {!isTop && (
+                <text
+                  x={x + bW/2}
+                  y={y - 5}
+                  textAnchor="middle"
+                  fontSize="8"
+                  fontWeight="600"
+                  fill="#94a3b8"
+                  fontFamily="system-ui, sans-serif"
+                >
                   ${d.earned}
                 </text>
               )}
-              <text x={x+bW/2} y={cH+16} textAnchor="middle" fontSize="10" fill="#94a3b8">
-                {lang==="ar"?d.monthAr:d.month}
+
+              {/* Month label */}
+              <text
+                x={x + bW/2} y={cH + 15}
+                textAnchor="middle" fontSize="11" fill="#64748b"
+                fontFamily="system-ui, sans-serif"
+              >
+                {lang==="ar" ? d.monthAr : d.month}
               </text>
-              <text x={x+bW/2} y={cH+28} textAnchor="middle" fontSize="9" fill="#cbd5e1">
+
+              {/* Sessions count */}
+              <text
+                x={x + bW/2} y={cH + 28}
+                textAnchor="middle" fontSize="9" fill="#cbd5e1"
+                fontFamily="system-ui, sans-serif"
+              >
                 {d.sessions}s
               </text>
             </g>
@@ -183,11 +251,8 @@ function PayoutDetailModal({ p,onClose,lang,t }:{ p:PayoutRecord; onClose:()=>vo
   const copy = () => { navigator.clipboard?.writeText(p.reference).then(()=>{ setCopied(true); setTimeout(()=>setCopied(false),2000); }).catch(()=>{}); };
   return (
     <Backdrop onClose={onClose}>
-      {/* Full-width on mobile, max-sm on desktop */}
-      <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-sm overflow-hidden"
-        dir={lang==="ar"?"rtl":"ltr"}>
+      <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-sm overflow-hidden" dir={lang==="ar"?"rtl":"ltr"}>
         <div className="h-1" style={{background:`linear-gradient(90deg,${PS[p.status].dot},transparent)`}}/>
-        {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#F1F5F9]">
           <div className="min-w-0">
             <h2 className="text-base font-bold text-[#1e293b]">{t("Payout Details","تفاصيل الدفعة")}</h2>
@@ -195,14 +260,11 @@ function PayoutDetailModal({ p,onClose,lang,t }:{ p:PayoutRecord; onClose:()=>vo
           </div>
           <button onClick={onClose} className="w-8 h-8 flex-shrink-0 ms-3 flex items-center justify-center rounded-xl bg-[#F5F7F9] text-[#94a3b8] hover:text-[#1e293b] hover:bg-[#E2E8F0] transition-all">{I.close}</button>
         </div>
-        {/* Body */}
         <div className="p-5 space-y-4">
-          {/* Amount hero */}
           <div className="rounded-2xl p-5 text-center" style={{backgroundColor:PS[p.status].bg}}>
             <p className="text-4xl font-black" style={{color:PS[p.status].text}}>{p.currency}{p.amount}</p>
             <p className="text-xs mt-1 font-medium" style={{color:PS[p.status].text}}>{p.date}</p>
           </div>
-          {/* Rows */}
           {[
             { lbl:t("Method","الطريقة"), val:lang==="ar"?mc.labelAr:mc.label },
             { lbl:t("Status","الحالة"),  val:lang==="ar"?PS[p.status].ar:PS[p.status].en },
@@ -213,7 +275,6 @@ function PayoutDetailModal({ p,onClose,lang,t }:{ p:PayoutRecord; onClose:()=>vo
               <span className="text-xs font-bold text-[#1e293b] truncate text-end">{r.val}</span>
             </div>
           ))}
-          {/* Reference + copy */}
           <div className="flex items-center gap-3 rounded-xl bg-[#F8FAFC] border border-[#F1F5F9] px-3 py-2.5">
             <div className="min-w-0 flex-1">
               <p className="text-[10px] text-[#94a3b8] font-semibold uppercase tracking-wide">{t("Reference","المرجع")}</p>
@@ -223,11 +284,11 @@ function PayoutDetailModal({ p,onClose,lang,t }:{ p:PayoutRecord; onClose:()=>vo
               className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border border-[#E2E8F0] transition-all active:scale-95"
               style={copied?{backgroundColor:"#d1fae5",color:"#059669",borderColor:"#6ee7b7"}:{color:"#64748b"}}>
               {copied?I.ok:I.copy}
-              <span className="hidden xs:inline">{copied?t("Copied!","تم!"):t("Copy","نسخ")}</span>
+              {copied?t("Copied!","تم!"):t("Copy","نسخ")}
             </button>
           </div>
         </div>
-        <div className="px-5 pb-5 pb-safe">
+        <div className="px-5 pb-5" style={{paddingBottom:"max(1.25rem,env(safe-area-inset-bottom))"}}>
           <button onClick={onClose} className="w-full py-2.5 rounded-xl text-sm font-semibold border border-[#F1F5F9] text-[#64748b] hover:bg-[#F5F7F9] active:scale-95 transition-all">{t("Close","إغلاق")}</button>
         </div>
       </div>
@@ -258,7 +319,6 @@ function WithdrawModal({ available,onSubmit,onClose,lang,t }:{ available:number;
       <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-sm overflow-hidden"
         dir={lang==="ar"?"rtl":"ltr"} style={{maxHeight:"92vh",overflowY:"auto"}}>
         <div className="h-1" style={{background:"linear-gradient(90deg,#107789,#0d6275)"}}/>
-        {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#F1F5F9]">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-9 h-9 flex-shrink-0 rounded-xl bg-[#EBF5F7] flex items-center justify-center text-[#107789]">{I.withdraw2}</div>
@@ -269,9 +329,7 @@ function WithdrawModal({ available,onSubmit,onClose,lang,t }:{ available:number;
           </div>
           <button onClick={onClose} className="w-8 h-8 flex-shrink-0 ms-3 flex items-center justify-center rounded-xl bg-[#F5F7F9] text-[#94a3b8] hover:text-[#1e293b] hover:bg-[#E2E8F0] transition-all">{I.close}</button>
         </div>
-        {/* Body */}
         <div className="p-5 space-y-4">
-          {/* Amount */}
           <div>
             <label className="block text-xs font-semibold text-[#64748b] mb-1.5">{t("Amount ($)","المبلغ ($)")}</label>
             <div className="relative">
@@ -279,7 +337,6 @@ function WithdrawModal({ available,onSubmit,onClose,lang,t }:{ available:number;
               <input type="number" min="10" max={available} value={amount} onChange={e=>setAmount(e.target.value)}
                 className={`${inp} ps-7`} placeholder="0.00"/>
             </div>
-            {/* Quick amounts */}
             <div className="flex gap-2 mt-2">
               {quickAmounts.map(v=>(
                 <button key={v} onClick={()=>setAmount(String(v))}
@@ -289,7 +346,6 @@ function WithdrawModal({ available,onSubmit,onClose,lang,t }:{ available:number;
               ))}
             </div>
           </div>
-          {/* Method */}
           <div>
             <label className="block text-xs font-semibold text-[#64748b] mb-1.5">{t("Method","الطريقة")}</label>
             <div className="space-y-2">
@@ -303,20 +359,17 @@ function WithdrawModal({ available,onSubmit,onClose,lang,t }:{ available:number;
               ))}
             </div>
           </div>
-          {/* Errors */}
           {errors.length>0&&(
             <div className="rounded-xl bg-[#fef2f2] border border-[#fecaca] p-3 space-y-1">
               {errors.map((e,i)=><p key={i} className="text-xs text-[#ef4444] font-medium">{e}</p>)}
             </div>
           )}
-          {/* Info */}
           <div className="flex items-start gap-2 text-xs text-[#94a3b8] bg-[#F8FAFC] rounded-xl p-3">
             <span className="flex-shrink-0 mt-0.5">{I.info}</span>
             <span>{t("Payouts are processed within 2-3 business days.","تُعالج طلبات السحب خلال 2-3 أيام عمل.")}</span>
           </div>
         </div>
-        {/* Footer */}
-        <div className="flex gap-3 px-5 pb-5 pb-safe">
+        <div className="flex gap-3 px-5 pb-5" style={{paddingBottom:"max(1.25rem,env(safe-area-inset-bottom))"}}>
           <button onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm font-semibold border border-[#F1F5F9] text-[#64748b] hover:bg-[#F5F7F9] active:scale-95 transition-all">{t("Cancel","إلغاء")}</button>
           <button onClick={()=>{ if(validate()) onSubmit(parseFloat(amount),method); }}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white hover:opacity-90 active:scale-95 transition-all"
@@ -392,7 +445,6 @@ export default function TeacherWallet(){
         @keyframes slideUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
         @keyframes modalIn { from{opacity:0;transform:scale(.93) translateY(10px)} to{opacity:1;transform:scale(1) translateY(0)} }
         @keyframes fadeIn  { from{opacity:0} to{opacity:1} }
-        .pb-safe { padding-bottom: max(1.25rem, env(safe-area-inset-bottom)); }
       `}</style>
 
       <main className="flex-1 min-h-screen overflow-auto p-4 sm:p-6 space-y-5 sm:space-y-6"
@@ -408,31 +460,26 @@ export default function TeacherWallet(){
             className="flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-sm font-semibold text-white hover:opacity-90 active:scale-95 transition-all shadow-sm"
             style={{backgroundColor:"#107789",animation:"cardIn .4s .1s both"}}>
             {I.withdraw2}
-            <span className="hidden xs:inline sm:inline">{t("Withdraw Funds","سحب الأرباح")}</span>
-            <span className="xs:hidden">{t("Withdraw","سحب")}</span>
+            <span>{t("Withdraw Funds","سحب الأرباح")}</span>
           </button>
         </div>
 
-        {/* ── Stats — 2 cols on mobile, 4 on lg ── */}
+        {/* ── Stats ── */}
         <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {statCards.map(s=><StatCard key={s.label} {...s}/>)}
         </div>
 
-        {/* ── Hero + Chart — stack on mobile, side-by-side on xl ── */}
+        {/* ── Hero + Chart ── */}
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-3" style={{animation:"cardIn .45s .2s both"}}>
 
           {/* Balance Hero */}
           <div className="xl:col-span-1 rounded-2xl overflow-hidden shadow-sm relative"
             style={{background:"linear-gradient(135deg,#0B2C33 0%,#107789 60%,#0d8a9e 100%)"}}>
-            {/* Decorative circles */}
             <div className="absolute -top-10 -end-10 w-48 h-48 rounded-full opacity-10 bg-white pointer-events-none"/>
             <div className="absolute -bottom-12 -start-12 w-56 h-56 rounded-full opacity-5 bg-white pointer-events-none"/>
-
             <div className="relative p-5 sm:p-6 flex flex-col justify-between min-h-[200px] sm:min-h-[220px]">
               <div>
-                <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-white/60">
-                  {t("Available Balance","الرصيد المتاح")}
-                </p>
+                <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-white/60">{t("Available Balance","الرصيد المتاح")}</p>
                 <p className="text-4xl sm:text-5xl font-black text-white mt-2 leading-none">${available}</p>
                 <p className="text-xs sm:text-sm text-white/60 mt-2">{t("Ready to withdraw","جاهز للسحب")}</p>
               </div>
@@ -455,7 +502,7 @@ export default function TeacherWallet(){
             </div>
           </div>
 
-          {/* Chart */}
+          {/* Chart card */}
           <div className="xl:col-span-2 rounded-2xl bg-white border border-[#F1F5F9] shadow-sm p-4 sm:p-5">
             <div className="flex flex-wrap items-center justify-between gap-2 mb-3 sm:mb-4">
               <div>
@@ -472,15 +519,10 @@ export default function TeacherWallet(){
 
         {/* ── Tabs ── */}
         <div className="flex items-center gap-2 flex-wrap" style={{animation:"cardIn .4s .28s both"}}>
-          {([
-            ["sessions", t("Sessions","الجلسات")],
-            ["payouts",  t("Payouts","الدفعات")],
-          ] as const).map(([key,lbl])=>(
+          {([["sessions", t("Sessions","الجلسات")],["payouts",t("Payouts","الدفعات")]] as const).map(([key,lbl])=>(
             <button key={key} onClick={()=>setActiveTab(key)}
               className="px-4 py-2 rounded-xl text-sm font-semibold transition-all active:scale-95"
-              style={activeTab===key
-                ?{backgroundColor:"#107789",color:"white",boxShadow:"0 2px 8px #10778940"}
-                :{backgroundColor:"white",color:"#64748b",border:"1px solid #F1F5F9"}}>
+              style={activeTab===key?{backgroundColor:"#107789",color:"white",boxShadow:"0 2px 8px #10778940"}:{backgroundColor:"white",color:"#64748b",border:"1px solid #F1F5F9"}}>
               {lbl}
             </button>
           ))}
@@ -494,8 +536,7 @@ export default function TeacherWallet(){
               <h2 className="text-sm font-bold text-[#1e293b]">{t("Completed Sessions","الجلسات المكتملة")}</h2>
               <p className="text-xs text-[#94a3b8] mt-0.5">{SESSIONS.length} {t("sessions","جلسة")}</p>
             </div>
-
-            {/* Mobile card list — shown below sm */}
+            {/* Mobile card list */}
             <div className="sm:hidden divide-y divide-[#F1F5F9]">
               {SESSIONS.map((s,i)=>(
                 <div key={s.id} className="flex items-center gap-3 px-4 py-3.5"
@@ -512,29 +553,24 @@ export default function TeacherWallet(){
                   <span className="text-sm font-black text-[#059669] flex-shrink-0">${s.earned}</span>
                 </div>
               ))}
-              {/* Mobile total */}
               <div className="flex items-center justify-between px-4 py-3 bg-[#F8FAFC]">
                 <span className="text-xs font-bold text-[#64748b] uppercase tracking-wide">{t("Total","الإجمالي")}</span>
                 <span className="text-base font-black text-[#107789]">${totalEarned}</span>
               </div>
             </div>
-
-            {/* Desktop table — hidden below sm */}
+            {/* Desktop table */}
             <div className="hidden sm:block overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-[#F8FAFC]">
                     {[{en:"Student",ar:"الطالب"},{en:"Date",ar:"التاريخ"},{en:"Duration",ar:"المدة"},{en:"Type",ar:"النوع"},{en:"Rate",ar:"السعر"},{en:"Earned",ar:"الأرباح"}].map(col=>(
-                      <th key={col.en} className="px-4 py-3 text-start text-xs font-semibold uppercase tracking-wide text-[#94a3b8] whitespace-nowrap">
-                        {lang==="ar"?col.ar:col.en}
-                      </th>
+                      <th key={col.en} className="px-4 py-3 text-start text-xs font-semibold uppercase tracking-wide text-[#94a3b8] whitespace-nowrap">{lang==="ar"?col.ar:col.en}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#F1F5F9]">
                   {SESSIONS.map((s,i)=>(
-                    <tr key={s.id} className="hover:bg-[#F8FAFC] transition-colors"
-                      style={{animation:`slideUp .3s ${0.35+i*0.04}s ease both`}}>
+                    <tr key={s.id} className="hover:bg-[#F8FAFC] transition-colors" style={{animation:`slideUp .3s ${0.35+i*0.04}s ease both`}}>
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-2.5 min-w-0">
                           <Av initials={s.avatar}/>
@@ -542,16 +578,12 @@ export default function TeacherWallet(){
                         </div>
                       </td>
                       <td className="px-4 py-3.5 whitespace-nowrap">
-                        <div className="flex items-center gap-1.5 text-[#94a3b8]">
-                          {I.cal}<span className="text-xs">{s.date}</span>
-                        </div>
+                        <div className="flex items-center gap-1.5 text-[#94a3b8]">{I.cal}<span className="text-xs">{s.date}</span></div>
                       </td>
                       <td className="px-4 py-3.5 whitespace-nowrap text-xs text-[#64748b]">{s.duration}</td>
                       <td className="px-4 py-3.5"><TBadge type={s.type} lang={lang}/></td>
                       <td className="px-4 py-3.5 whitespace-nowrap text-xs text-[#64748b]">{s.currency}{s.rate}/hr</td>
-                      <td className="px-4 py-3.5 whitespace-nowrap">
-                        <span className="text-sm font-bold text-[#059669]">{s.currency}{s.earned}</span>
-                      </td>
+                      <td className="px-4 py-3.5 whitespace-nowrap"><span className="text-sm font-bold text-[#059669]">{s.currency}{s.earned}</span></td>
                     </tr>
                   ))}
                 </tbody>
@@ -592,14 +624,9 @@ export default function TeacherWallet(){
                         <PBadge status={p.status} lang={lang}/>
                       </div>
                       <div className="flex items-center gap-2 pt-2 border-t border-[#F8FAFC]">
-                        <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-                          style={{backgroundColor:`${mc.color}18`,color:mc.color}}>
-                          {mc.icon}
-                        </div>
+                        <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{backgroundColor:`${mc.color}18`,color:mc.color}}>{mc.icon}</div>
                         <span className="text-xs font-semibold text-[#64748b] truncate">{lang==="ar"?mc.labelAr:mc.label}</span>
-                        <span className="ms-auto flex items-center gap-1 text-[10px] font-mono text-[#94a3b8] flex-shrink-0">
-                          ···{p.reference.slice(-5)}{I.arrow}
-                        </span>
+                        <span className="ms-auto flex items-center gap-1 text-[10px] font-mono text-[#94a3b8] flex-shrink-0">···{p.reference.slice(-5)}{I.arrow}</span>
                       </div>
                     </div>
                   </div>
@@ -611,7 +638,6 @@ export default function TeacherWallet(){
 
       </main>
 
-      {/* ── Modals ── */}
       {viewPayout&&<PayoutDetailModal p={viewPayout} onClose={()=>setViewPayout(null)} lang={lang} t={t}/>}
       {showWithdraw&&<WithdrawModal available={available} onSubmit={handleWithdraw} onClose={()=>setShowWithdraw(false)} lang={lang} t={t}/>}
       {toast&&<Toast msg={toast.msg} type={toast.type} onClose={()=>setToast(null)}/>}
