@@ -1,3 +1,3 @@
-export default function PaymentsPage() {
-  return <div>Parent Page</div>;
+export default function Page() {
+  return <div>Coming soon</div>;
 }
