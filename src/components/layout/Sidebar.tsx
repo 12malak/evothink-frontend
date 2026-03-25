@@ -194,7 +194,7 @@ const navItems: NavItem[] = [
     labelAr: "الطلاب",
     icon: Icons.student,
     children: [
-      { key: "student-dashboard", labelEn: "Dashboard", labelAr: "الرئيسية", href: "/student" },
+      { key: "student-dashboard", labelEn: "Dashboard", labelAr: "الرئيسية", href: "/student/dashboard" },
       { key: "student-learning", labelEn: "Learning", labelAr: "التعلم", href: "/student/learning" },
       { key: "student-classes", labelEn: "Classes", labelAr: "الحصص", href: "/student/classes" },
       { key: "student-payments", labelEn: "Payments", labelAr: "المدفوعات", href: "/student/payments" },
@@ -218,7 +218,7 @@ const navItems: NavItem[] = [
     labelAr: "أولياء الأمور",
     icon: Icons.parent,
     children: [
-      { key: "parent-dashboard", labelEn: "Dashboard", labelAr: "الرئيسية", href: "/parent" },
+      { key: "parent-dashboard", labelEn: "Dashboard", labelAr: "الرئيسية", href: "/parent/dashboard" },
       { key: "parent-payments", labelEn: "Payments", labelAr: "المدفوعات", href: "/parent/payments" },
     ],
   },
