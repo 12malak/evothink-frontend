@@ -176,23 +176,23 @@ export default function Header({
         <div className="flex h-[60px] sm:h-[68px] items-center justify-between gap-2 px-3 sm:px-5 lg:px-8">
 
           {/* Logo — hidden on mobile */}
-         <div className="flex-shrink-0" dir="ltr">
+         {/* <div className="flex-shrink-0" dir="ltr">
   
-  {/* Mobile logo (icon فقط) */}
+  
   <img
     src="/images/logo.png"
     alt="Evothink"
     className="w-9 h-9 object-contain sm:hidden"
   />
 
-  {/* Desktop logo */}
+  
   <img
     src="/images/logo.png"
     alt="Evothink"
     className="hidden sm:block w-[150px] lg:w-[200px] h-auto object-contain"
   />
 
-</div>
+</div> */}
 
           {/* Controls */}
           <div className="flex flex-shrink-0 items-center gap-1 sm:gap-2 ms-auto">
