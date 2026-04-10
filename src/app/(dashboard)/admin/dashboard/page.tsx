@@ -32,30 +32,30 @@ const stats = [
 
 // ─── Recent Activity ───────────────────────────────────────────
 const recentActivity = [
-  { name:"Sara Al-Rashid",  role:"Student", roleAr:"طالب",  action:"Enrolled in Math 101",    actionAr:"سجل في مادة الرياضيات 101", time:"2 min ago",  timeAr:"منذ دقيقتين",   avatar:"S", color:"#107789", bg:"#EBF5F7" },
-  { name:"Mr. Khalid Nasser",role:"Teacher", roleAr:"معلم", action:"Uploaded new lesson",     actionAr:"رفع درس جديد",              time:"18 min ago", timeAr:"منذ 18 دقيقة",  avatar:"K", color:"#7c3aed", bg:"#ede9fe" },
-  { name:"Layla Hassan",    role:"Student", roleAr:"طالب",  action:"Submitted assignment",    actionAr:"سلّم الواجب",               time:"35 min ago", timeAr:"منذ 35 دقيقة",  avatar:"L", color:"#059669", bg:"#d1fae5" },
-  { name:"Ms. Rima Yousef", role:"Teacher", roleAr:"معلم",  action:"Graded Quiz #4",          actionAr:"صحّح الاختبار الرابع",      time:"1 hr ago",   timeAr:"منذ ساعة",      avatar:"R", color:"#d97706", bg:"#fef3c7" },
+  { name:"Sara Al-Rashid",   role:"Student", roleAr:"طالب",  action:"Enrolled in Math 101",    actionAr:"سجل في مادة الرياضيات 101", time:"2 min ago",  timeAr:"منذ دقيقتين",  avatar:"S", color:"#107789", bg:"#EBF5F7" },
+  { name:"Mr. Khalid Nasser",role:"Teacher", roleAr:"معلم",  action:"Uploaded new lesson",     actionAr:"رفع درس جديد",              time:"18 min ago", timeAr:"منذ 18 دقيقة", avatar:"K", color:"#7c3aed", bg:"#ede9fe" },
+  { name:"Layla Hassan",     role:"Student", roleAr:"طالب",  action:"Submitted assignment",    actionAr:"سلّم الواجب",               time:"35 min ago", timeAr:"منذ 35 دقيقة", avatar:"L", color:"#059669", bg:"#d1fae5" },
+  { name:"Ms. Rima Yousef",  role:"Teacher", roleAr:"معلم",  action:"Graded Quiz #4",          actionAr:"صحّح الاختبار الرابع",      time:"1 hr ago",   timeAr:"منذ ساعة",     avatar:"R", color:"#d97706", bg:"#fef3c7" },
 ];
 
-// ─── Monthly Data ─────────────────────────────────────────────
+// ─── Monthly Data — أسماء عربية قصيرة وواضحة ─────────────────
 const monthlyData = [
   { month:"Sep", monthAr:"سبت", value:60 },
   { month:"Oct", monthAr:"أكت", value:75 },
   { month:"Nov", monthAr:"نوف", value:55 },
   { month:"Dec", monthAr:"ديس", value:80 },
-  { month:"Jan", monthAr:"ينا", value:70 },
+  { month:"Jan", monthAr:"يناير", value:70 },
   { month:"Feb", monthAr:"فبر", value:90 },
-  { month:"Mar", monthAr:"مار", value:85 },
+  { month:"Mar", monthAr:"مارس", value:85 },
 ];
 
 // ─── Top Courses ──────────────────────────────────────────────
 const topCourses = [
-  { name:"Mathematics 101",   nameAr:"رياضيات 101",    teacher:"Mr. Ahmad",  teacherAr:"أ. أحمد",  enrolled:312, capacity:350, completion:89, status:"Active", statusAr:"نشط"    },
-  { name:"English Literature", nameAr:"أدب إنجليزي",   teacher:"Ms. Nora",   teacherAr:"أ. نورا",  enrolled:278, capacity:300, completion:74, status:"Active", statusAr:"نشط"    },
-  { name:"Physics Advanced",  nameAr:"فيزياء متقدم",   teacher:"Dr. Samir",  teacherAr:"د. سمير",  enrolled:190, capacity:250, completion:62, status:"Active", statusAr:"نشط"    },
-  { name:"Arabic Language",   nameAr:"اللغة العربية",  teacher:"Mr. Tariq",  teacherAr:"أ. طارق",  enrolled:340, capacity:340, completion:95, status:"Full",   statusAr:"ممتلئ"  },
-  { name:"Chemistry Basics",  nameAr:"كيمياء أساسية",  teacher:"Ms. Dina",   teacherAr:"أ. دينا",  enrolled:145, capacity:200, completion:51, status:"Active", statusAr:"نشط"    },
+  { name:"Mathematics 101",   nameAr:"رياضيات 101",   teacher:"Mr. Ahmad",  teacherAr:"أ. أحمد",  enrolled:312, capacity:350, completion:89, status:"Active",  statusAr:"نشط"   },
+  { name:"English Literature", nameAr:"أدب إنجليزي",  teacher:"Ms. Nora",   teacherAr:"أ. نورا",  enrolled:278, capacity:300, completion:74, status:"Active",  statusAr:"نشط"   },
+  { name:"Physics Advanced",  nameAr:"فيزياء متقدم",  teacher:"Dr. Samir",  teacherAr:"د. سمير",  enrolled:190, capacity:250, completion:62, status:"Active",  statusAr:"نشط"   },
+  { name:"Arabic Language",   nameAr:"اللغة العربية", teacher:"Mr. Tariq",  teacherAr:"أ. طارق",  enrolled:340, capacity:340, completion:95, status:"Full",    statusAr:"ممتلئ" },
+  { name:"Chemistry Basics",  nameAr:"كيمياء أساسية", teacher:"Ms. Dina",   teacherAr:"أ. دينا",  enrolled:145, capacity:200, completion:51, status:"Active",  statusAr:"نشط"   },
 ];
 
 // ─── Quick Overview ───────────────────────────────────────────
@@ -65,18 +65,16 @@ const overviewItems = [
   { label:"Pass Rate",             labelAr:"نسبة النجاح",    value:86, color:"#059669" },
 ];
 
-// ─── Bar Chart — FIXED ────────────────────────────────────────
+// ─── Bar Chart ────────────────────────────────────────────────
 function BarChart({ isRTL }: { isRTL: boolean }) {
   const max    = Math.max(...monthlyData.map(d => d.value));
-  const cH     = 120;   // chart area height
-  const bW     = 32;    // bar width
-  const gap    = 12;    // gap between bars
-  const topPad = 28;    // ← enough room above tallest bar for the label pill
-  const botPad = 32;    // room for month labels below
+  const cH     = 120;
+  const bW     = 32;
+  const gap    = 12;
+  const topPad = 28;
+  const botPad = 36;   // زيادة المساحة السفلية للأسماء العربية
   const totalW = monthlyData.length * (bW + gap) - gap;
-
-  // viewBox: start at -topPad vertically so labels above y=0 are visible
-  const vb = `0 -${topPad} ${totalW + 10} ${cH + topPad + botPad}`;
+  const vb     = `0 -${topPad} ${totalW + 10} ${cH + topPad + botPad}`;
 
   return (
     <div className="w-full">
@@ -86,30 +84,34 @@ function BarChart({ isRTL }: { isRTL: boolean }) {
         style={{ width: "100%", height: "auto", display: "block" }}
       >
         {monthlyData.map((d, i) => {
-          const bH     = Math.max(4, (d.value / max) * cH);
-          const x      = i * (bW + gap);
-          const y      = cH - bH;
-          const isTop  = d.month === "Mar"; // tallest / highlight bar
-          const fill   = isTop ? "#107789" : "#E2EFF1";
+          const bH    = Math.max(4, (d.value / max) * cH);
+          const x     = i * (bW + gap);
+          const y     = cH - bH;
+          const isTop = d.value === max;
+          const fill  = isTop ? "#107789" : "#E2EFF1";
 
-          // Approx pill width based on text length
+          // label — EN short, AR short
+          const label    = isRTL ? d.monthAr : d.month;
+          // حجم الخط حسب طول النص: يناير/مارس أطول من Sep/Oct
+          const fontSize = label.length > 3 ? 9 : 11;
+
           const labelText = String(d.value);
           const pillW     = labelText.length * 6.5 + 12;
           const pillH     = 16;
-          const labelY    = y - 8;   // text baseline — sits 8px above bar top
+          const labelY    = y - 8;
 
           return (
             <g key={i}>
-              {/* Bar background track */}
+              {/* Track */}
               <rect x={x} y={0} width={bW} height={cH} rx={6} fill="#F8FAFC" />
 
-              {/* Bar fill */}
+              {/* Bar */}
               <rect
                 x={x} y={y} width={bW} height={bH} rx={6} fill={fill}
                 style={{ transition: `height .7s ${i * 0.08}s ease, y .7s ${i * 0.08}s ease` }}
               />
 
-              {/* Highlighted bar: teal pill with white value */}
+              {/* Pill for top bar */}
               {isTop && (
                 <g>
                   <rect
@@ -121,44 +123,36 @@ function BarChart({ isRTL }: { isRTL: boolean }) {
                     fill="#107789"
                   />
                   <text
-                    x={x + bW / 2}
-                    y={labelY}
-                    textAnchor="middle"
-                    fontSize="10"
-                    fontWeight="800"
-                    fill="white"
-                    fontFamily="system-ui, sans-serif"
+                    x={x + bW / 2} y={labelY}
+                    textAnchor="middle" fontSize="10" fontWeight="800"
+                    fill="white" fontFamily="system-ui, sans-serif"
                   >
                     {labelText}
                   </text>
                 </g>
               )}
 
-              {/* Other bars: small muted value above */}
+              {/* Value above other bars */}
               {!isTop && (
                 <text
-                  x={x + bW / 2}
-                  y={y - 5}
-                  textAnchor="middle"
-                  fontSize="9"
-                  fontWeight="600"
-                  fill="#94a3b8"
-                  fontFamily="system-ui, sans-serif"
+                  x={x + bW / 2} y={y - 5}
+                  textAnchor="middle" fontSize="9" fontWeight="600"
+                  fill="#94a3b8" fontFamily="system-ui, sans-serif"
                 >
                   {d.value}
                 </text>
               )}
 
-              {/* Month label */}
+              {/* Month label — حجم الخط يتكيف مع طول النص */}
               <text
                 x={x + bW / 2}
                 y={cH + 18}
                 textAnchor="middle"
-                fontSize="11"
+                fontSize={fontSize}
                 fill="#94a3b8"
                 fontFamily="system-ui, sans-serif"
               >
-                {isRTL ? d.monthAr : d.month}
+                {label}
               </text>
             </g>
           );
@@ -240,14 +234,14 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* ── Top Courses Table ── */}
+          {/* ── Top Courses ── */}
           <div className="bg-white rounded-2xl shadow-sm border border-[#F1F5F9] overflow-hidden hover:shadow-md transition-all duration-300">
             <div className="p-5 border-b border-[#F1F5F9]">
               <p className="font-bold text-[#1e293b] text-sm">{t("Top Courses", "أفضل الكورسات")}</p>
               <p className="text-xs text-[#94a3b8] mt-0.5">{t("Enrollment and completion overview", "نظرة على التسجيل والإتمام")}</p>
             </div>
 
-            {/* Mobile: card list */}
+            {/* Mobile */}
             <div className="sm:hidden divide-y divide-[#F8FAFC]">
               {topCourses.map((course, i) => {
                 const sc = statusColor(course.status);
@@ -273,7 +267,7 @@ export default function HomePage() {
               })}
             </div>
 
-            {/* Desktop: full table */}
+            {/* Desktop */}
             <div className="hidden sm:block overflow-x-auto">
               <table className="w-full text-sm" style={{ borderCollapse: "collapse" }}>
                 <thead>
@@ -320,7 +314,7 @@ export default function HomePage() {
               <p className="text-xs text-[#94a3b8] mt-0.5">{t("Latest actions across the platform", "آخر الأنشطة في النظام")}</p>
             </div>
 
-            {/* Mobile: card list */}
+            {/* Mobile */}
             <div className="sm:hidden divide-y divide-[#F8FAFC]">
               {recentActivity.map((item, i) => (
                 <div key={i} className="flex items-start gap-3 p-4">
@@ -343,7 +337,7 @@ export default function HomePage() {
               ))}
             </div>
 
-            {/* Desktop: full table */}
+            {/* Desktop */}
             <div className="hidden sm:block overflow-x-auto">
               <table className="w-full text-sm" style={{ borderCollapse: "collapse" }}>
                 <thead>

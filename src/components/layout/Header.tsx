@@ -176,23 +176,19 @@ export default function Header({
         <div className="flex h-[60px] sm:h-[68px] items-center justify-between gap-2 px-3 sm:px-5 lg:px-8">
 
           {/* Logo — hidden on mobile */}
-         {/* <div className="flex-shrink-0" dir="ltr">
-  
-  
-  <img
-    src="/images/logo.png"
-    alt="Evothink"
-    className="w-9 h-9 object-contain sm:hidden"
-  />
+       {/* Mobile — أيقونة فقط */}
+  <div className="flex sm:hidden items-center gap-2">
+    <div className="w-8 h-8 rounded-xl flex items-center justify-center"
+      style={{background:"linear-gradient(135deg,#107789,#0d9daf)"}}>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+      </svg>
+    </div>
+  </div>
 
-  
-  <img
-    src="/images/logo.png"
-    alt="Evothink"
-    className="hidden sm:block w-[150px] lg:w-[200px] h-auto object-contain"
-  />
 
-</div> */}
+
 
           {/* Controls */}
           <div className="flex flex-shrink-0 items-center gap-1 sm:gap-2 ms-auto">
