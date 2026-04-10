@@ -80,9 +80,9 @@ const ALL_NAV: NavItem[] = [
       {key:"p-payments", labelEn:"Payments",  labelAr:"المدفوعات", href:"/parent/payments"},
     ],
   },
-  // Sales (sales + admin)
+  // Sales (sales )
   {
-    key:"sales", labelEn:"Sales", labelAr:"المبيعات", icon:IC.sales, roles:["sales","admin"],
+    key:"sales", labelEn:"Sales", labelAr:"المبيعات", icon:IC.sales, roles:["sales"],
     children:[
       {key:"sa-dash",   labelEn:"Dashboard", labelAr:"الرئيسية",          href:"/sales/dashboard"},
       {key:"sa-leads",  labelEn:"Leads",     labelAr:"العملاء المحتملون", href:"/sales/leads"},
@@ -90,31 +90,7 @@ const ALL_NAV: NavItem[] = [
     ],
   },
   // Admin — management sections
-  {
-    key:"admin-students", labelEn:"Students", labelAr:"الطلاب", icon:IC.student, roles:["admin"],
-    children:[
-      {key:"as-dash",     labelEn:"Dashboard", labelAr:"الرئيسية",  href:"/student/dashboard"},
-      {key:"as-learning", labelEn:"Learning",  labelAr:"التعلم",    href:"/student/learning"},
-      {key:"as-classes",  labelEn:"Classes",   labelAr:"الحصص",     href:"/student/classes"},
-      {key:"as-payments", labelEn:"Payments",  labelAr:"المدفوعات", href:"/student/payments"},
-    ],
-  },
-  {
-    key:"admin-teachers", labelEn:"Teachers", labelAr:"المعلمون", icon:IC.teacher, roles:["admin"],
-    children:[
-      {key:"at-dash",    labelEn:"Dashboard",  labelAr:"الرئيسية", href:"/teacher/dashboard"},
-      {key:"at-classes", labelEn:"Classes",    labelAr:"الحصص",    href:"/teacher/classes"},
-      {key:"at-eval",    labelEn:"Evaluation", labelAr:"التقييم",  href:"/teacher/evaluation"},
-      {key:"at-wallet",  labelEn:"Wallet",     labelAr:"المحفظة",  href:"/teacher/wallet"},
-    ],
-  },
-  {
-    key:"admin-parents", labelEn:"Parents", labelAr:"أولياء الأمور", icon:IC.parent, roles:["admin"],
-    children:[
-      {key:"ap-dash",     labelEn:"Dashboard", labelAr:"الرئيسية",  href:"/parent/dashboard"},
-      {key:"ap-payments", labelEn:"Payments",  labelAr:"المدفوعات", href:"/parent/payments"},
-    ],
-  },
+
   {
     key:"admin", labelEn:"Administration", labelAr:"الإدارة", icon:IC.admin, roles:["admin"],
     children:[
